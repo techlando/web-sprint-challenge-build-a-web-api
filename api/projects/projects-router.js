@@ -28,25 +28,59 @@ router.get('/:id', validateId, (req, res) => {
     res.json(req.project)
 })
 
-router.post('/', validateProject, (req, res, next) => {
-    Projects.insert({ name: req.name, description: req.description })
-  .then(newProject => {
-   res.status(201).json(newProject)
-  })
-  .catch(next)
-   
+router.post('/', (req, res) => {
+  const { name, description } = req.body
+  if(!name || !description) {
+      res.status(400).json({
+          message: 'please provied project name, and description.'
+      })
+  } else {
+      Projects.insert({ name, description})
+      .then(stuff => {
+          
+          res.status(200).json(stuff)
+      })
+      .catch(err => {
+          res.status(500).json({
+              message: 'there is an error while saving project',
+              err: err.message,
+              stack: err.stack
+          })
+      })
+  }
 })
 
-router.put('/:id', validateId, validateProject, (req, res, next) => {
-    Projects.update(req.params.id, { name: req.name, description: req.description })
-    .then(() => {
-      return Projects.get(req.params.id)
-     
-    })
-    .then(project => {
-      res.json(project)
-    })
-    .catch(next)
+router.put('/:id', (req, res, next) => {
+  const { name, description} = req.body
+  if(!name || !description ) {
+      res.status(400).json({
+          message: 'please provied project name, description and completed.'
+      })
+  } else {
+  Projects.get(req.params.id)
+  .then(stuff => {
+      if(!stuff){
+          res.status(404).json({
+              message: 'The post with the ID does not exist'
+          })
+      } else {
+          return Projects.update(req.params.id, req.body)
+      }
+      
+  })
+  .then(data => {
+      if(data){
+          return res.json(data)
+      }
+  })
+  .catch(err => {
+      res.status(500).json({
+          message: 'there is an error while saving project',
+          err: err.message,
+          stack: err.stack
+      })
+  })
+}
 })
 
 router.delete('/:id', validateId, async (req, res, next) => {
@@ -58,14 +92,24 @@ router.delete('/:id', validateId, async (req, res, next) => {
       }
 })
 
-router.get('/:id/actions', validateId, validateActions, async (req, res) => {
-    try {
-        const result = await Projects.getProjectActions(req.params.id)
-        res.json(result)
-        } catch (err) {
-          next(err)
-        }
-   
+router.get('/:id/actions', async (req, res) => {
+  try {
+    const action = await Projects.get(req.params.id)
+    if (!action) {
+      res.status(404).json({
+        message: 'this action with this id does not exist'
+      })
+    } else {
+      const stuff = await Projects.getProjectActions(req.params.id)
+      res.json(stuff)
+    }
+  } catch (err){
+    res.status(500).json({
+      message: 'there is an error while getting project',
+      err: err.message,
+      stack: err.stack
+  })
+  }
 })
 router.use((err, req, res, next) => {
     res.status(err.status || 500).json({

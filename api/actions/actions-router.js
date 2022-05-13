@@ -30,7 +30,7 @@ router.post('/', (req, res) => {
    } else {
        Actions.insert({ project_id, description, notes})
        .then(stuff => {
-           console.log(stuff)
+           
            res.status(200).json(stuff)
        })
        .catch(err => {
