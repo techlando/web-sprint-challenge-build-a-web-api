@@ -29,13 +29,13 @@ router.get('/:id', validateId, (req, res) => {
 })
 
 router.post('/', (req, res) => {
-  const { name, description } = req.body
+  const { name, description, completed} = req.body
   if(!name || !description) {
       res.status(400).json({
           message: 'please provied project name, and description.'
       })
   } else {
-      Projects.insert({ name, description})
+      Projects.insert({ name, description, completed})
       .then(stuff => {
           
           res.status(200).json(stuff)
@@ -51,8 +51,8 @@ router.post('/', (req, res) => {
 })
 
 router.put('/:id', (req, res, next) => {
-  const { name, description} = req.body
-  if(!name || !description ) {
+  const { name, description, completed} = req.body
+  if(!name || !description || !completed ) {
       res.status(400).json({
           message: 'please provied project name, description and completed.'
       })
@@ -64,7 +64,7 @@ router.put('/:id', (req, res, next) => {
               message: 'The post with the ID does not exist'
           })
       } else {
-          return Projects.update(req.params.id, req.body)
+          return Projects.update(req.params.id, {name, description, completed})
       }
       
   })
