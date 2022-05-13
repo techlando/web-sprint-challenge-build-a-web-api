@@ -50,37 +50,73 @@ router.post('/', (req, res) => {
   }
 })
 
-router.put('/:id', (req, res, next) => {
+router.put('/:id', (req, res) => {
   const { name, description, completed} = req.body
-  if(!name || !description || !completed ) {
+  if(!name || !description || !completed) {
       res.status(400).json({
-          message: 'please provied project name, description and completed.'
+          message: 'please provied project name, and description.'
       })
   } else {
-  Projects.get(req.params.id)
-  .then(stuff => {
+    Projects.get(req.params.id)
+    .then(stuff => {
       if(!stuff){
-          res.status(404).json({
-              message: 'The post with the ID does not exist'
-          })
+        res.status(404).json({
+          message: 'the post with that id doesnt exist'
+        })
       } else {
-          return Projects.update(req.params.id, {name, description, completed})
+        return Projects.update(req.params.id, req.body)
       }
-      
-  })
-  .then(data => {
+    })
+    .then(data => {
+      //updated whole task//
+      console.log(data)
       if(data){
-          return res.json(data)
+        return res.json(data.name)
       }
-  })
-  .catch(err => {
+    })
+    .catch(err => {
       res.status(500).json({
-          message: 'there is an error while saving project',
-          err: err.message,
-          stack: err.stack
-      })
-  })
-}
+        message: 'there is an error while updating project',
+        err: err.message,
+        stack: err.stack
+    })
+    })
+  }
+//   const { name, description, completed} = req.body
+//   if(name === false || description === false || !completed) {
+//       res.status(400).json({
+//           message: 'please provied project name, description and completed.'
+//       })
+//   } else {
+//   Projects.get(req.params.id)
+//   .then(stuff => {
+//       if(!stuff){
+//           res.status(404).json({
+//               message: 'The post with the ID does not exist'
+//           })
+//       } else {
+//           return Projects.update(req.params.id, req.body)
+//       }
+      
+//   })
+//   .then(data => {
+//       if(data){
+        
+//           return Projects.get(req.params.id)
+//       }
+//   })
+//   .then(project => {
+//     console.log(project)
+//     res.json(project)
+//   })
+//   .catch(err => {
+//       res.status(500).json({
+//           message: 'there is an error while saving project',
+//           err: err.message,
+//           stack: err.stack
+//       })
+//   })
+// }
 })
 
 router.delete('/:id', validateId, async (req, res, next) => {
