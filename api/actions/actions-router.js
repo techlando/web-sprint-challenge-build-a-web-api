@@ -21,21 +21,59 @@ router.get('/:id', validateId, (req, res) => {
     res.json(req.action)
 })
 
-router.post('/', validateActions, (req, res) => {
-    Actions.insert({
-        notes: req.notes,
-        description: req.description,
-        project_id: req.project_id
-    })
-    .then(newAction => {
-        console.log(newAction)
-    //  res.status(201).json(newAction)
-    })
-    // .catch(next)
+router.post('/', (req, res) => {
+   const { project_id, description, notes} = req.body
+   if(!project_id || !description || !notes) {
+       res.status(400).json({
+           message: 'please provied project id, description, and notes'
+       })
+   } else {
+       Actions.insert({ project_id, description, notes})
+       .then(stuff => {
+           console.log(stuff)
+           res.status(200).json(stuff)
+       })
+       .catch(err => {
+           res.status(500).json({
+               message: 'there is an error while saving action',
+               err: err.message,
+               stack: err.stack
+           })
+       })
+   }
 })
 
 router.put('/:id', (req, res) => {
-    console.log('hello from actions router')
+    const { project_id, description, notes} = req.body
+    if(!project_id || !description || !notes) {
+        res.status(400).json({
+            message: 'please provied project id, description, and notes'
+        })
+    } else {
+    Actions.get(req.params.id)
+    .then(stuff => {
+        if(!stuff){
+            res.status(404).json({
+                message: 'The post with the ID does not exist'
+            })
+        } else {
+            return Actions.update(req.params.id, req.body)
+        }
+        
+    })
+    .then(data => {
+        if(data){
+            return res.json(data)
+        }
+    })
+    .catch(err => {
+        res.status(500).json({
+            message: 'there is an error while saving action',
+            err: err.message,
+            stack: err.stack
+        })
+    })
+}
 })
 
 router.delete('/:id', validateId, async  (req, res) => {
