@@ -41,14 +41,15 @@ function validateProject(req, res, next){
 
 function validateActions(req, res, next) {
     const { action } = req.body
-    if(!action || !action.trim()) {
+    if(!action) {
         res.send('[]')
         }
      else {
-        req.action = action.trim()
+        req.action = action
         next()
     }
 }
+
 
 
 module.exports = {

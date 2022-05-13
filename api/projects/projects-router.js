@@ -37,9 +37,17 @@ router.post('/', validateProject, (req, res, next) => {
    
 })
 
-// router.put('/:id', validateId, (req, res) => {
-//     console.log('hello world')
-// })
+router.put('/:id', validateId, validateProject, (req, res, next) => {
+    Projects.update(req.params.id, { name: req.name, description: req.description })
+    .then(() => {
+      return Projects.get(req.params.id)
+     
+    })
+    .then(project => {
+      res.json(project)
+    })
+    .catch(next)
+})
 
 router.delete('/:id', validateId, async (req, res, next) => {
     try {
@@ -59,6 +67,14 @@ router.get('/:id/actions', validateId, validateActions, async (req, res) => {
         }
    
 })
+router.use((err, req, res, next) => {
+    res.status(err.status || 500).json({
+        message: 'something horriblle has happened',
+        err: err.message,
+        stack: err.stack
+    })
+})
+
 
 
 
