@@ -27,16 +27,25 @@ async function validateId( req, res, next) {
     }
 }
 function validateProject(req, res, next){
-    const { name, description } = req.body
-    if(!name || !description) {
-        res.status(400).json({
-            message: 'missing required name and description'
-        })
-    } else {
-        req.name = name.trim()
-        req.description = description.trim()
+    if(req.body.name && req.body.description && req.body.completed !== undefined){
         next()
+    } else {
+        next({
+            status: 400,
+            message: 'please provide name, description, and completed'
+        });
     }
+
+    // const { name, description } = req.body
+    // if(!name || !description) {
+    //     res.status(400).json({
+    //         message: 'missing required name and description'
+    //     })
+    // } else {
+    //     req.name = name.trim()
+    //     req.description = description.trim()
+    //     next()
+    // }
 }
 
 function validateActions(req, res, next) {
